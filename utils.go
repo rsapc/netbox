@@ -26,6 +26,8 @@ func GetPathForModel(model string) string {
 		path = "/virtualization/clusters"
 	case "cluster-group":
 		path = "/virtualization/cluster-groups"
+	case "cluster-type":
+		path = "/virtualization/cluster-types"
 	}
 	return path
 }
