@@ -404,7 +404,7 @@ func (c *Client) AddSite(row map[string]string) error {
 	if found {
 		return c.UpdateSite(id, row)
 	} else {
-		found, id := c.checkSite("slug", slugify(name))
+		found, id := c.checkSite("slug", Slugify(name))
 		if found {
 			return c.UpdateSite(id, row)
 		}
@@ -412,7 +412,7 @@ func (c *Client) AddSite(row map[string]string) error {
 	data := make(map[string]interface{})
 	data["custom_fields"] = buildCustomFields(row)
 	data["name"] = name
-	data["slug"] = slugify(name)
+	data["slug"] = Slugify(name)
 	data["region"] = region
 	data["group"] = customerGroup.ID
 	data["comments"] = row["comments"]
@@ -559,12 +559,12 @@ func buildCustomFields(row map[string]string) map[string]interface{} {
 	return custom_fields
 }
 
-// slugify takes a string and converts it to a slug by:
+// Slugify takes a string and converts it to a slug by:
 // 1. Converting to lowercase.
 // 2. Removing characters that aren’t alphanumerics, underscores, hyphens, or whitespace.
 // 3. Removing leading and trailing whitespace.
 // 4. Replacing any whitespace or repeated dashes with single dashes.
-func slugify(input string) string {
+func Slugify(input string) string {
 	output := strings.ToLower(input)
 	output = strings.TrimSpace(output)
 	output = strings.ReplaceAll(output, " ", "-")
@@ -637,11 +637,12 @@ func (c *Client) checkTag(tag Tag) {
 	}
 	resp.Result()
 	if obj.Count == 0 {
-		c.addTag(tag.Name, tag.Slug)
+		c.AddTag(tag.Name, tag.Slug)
 	}
 }
 
-func (c *Client) addTag(name string, slug string) {
+// AddTag creates a new tag in Netbox
+func (c *Client) AddTag(name string, slug string) {
 	data := make(map[string]interface{})
 	data["name"] = name
 	data["slug"] = slug
@@ -682,7 +683,7 @@ func (c *Client) AddJournalEntry(model string, modelID int64, level JournalLevel
 func (c *Client) AddLocation(site float64, row map[string]string) error {
 	data := make(map[string]interface{})
 	data["name"] = row["Service Street 1"]
-	data["slug"] = slugify(fmt.Sprint(row["Service Street 1"]))
+	data["slug"] = Slugify(fmt.Sprint(row["Service Street 1"]))
 	data["site"] = site
 	data["status"] = "active"
 	data["custom_fields"] = buildCustomFields(row)
@@ -746,7 +747,7 @@ func (c *Client) GetOrAddTenant(name string) (*Tenant, error) {
 	resp.Result()
 	if obj.Count == 0 {
 		tenant.Name = name
-		tenant.Slug = slugify(name)
+		tenant.Slug = Slugify(name)
 		tenant.Tags = []Tag{apcTag, customerTag, jobberTag}
 		return c.addTenant(tenant)
 	} else {
@@ -815,13 +816,6 @@ func (c *Client) SearchDevices(args ...string) ([]DeviceOrVM, error) {
 	return c.performDevVMsearch("device", args...)
 }
 
-// SearchVMs searches  the   virtualmachines
-// endpoint for the given args.  Args should be specified as
-// key=value (eg. has_primary_ip=true)
-func (c *Client) SearchVMs(args ...string) ([]DeviceOrVM, error) {
-	return c.performDevVMsearch("virtualmachine", args...)
-}
-
 // performDevVMsearch executes the search for devices or VMs
 func (c *Client) performDevVMsearch(objectType string, args ...string) ([]DeviceOrVM, error) {
 	var devices []DeviceOrVM
@@ -832,12 +826,7 @@ func (c *Client) performDevVMsearch(objectType string, args ...string) ([]Device
 		c.log.Error("could not determine the path for model %s", objectType)
 		return devices, fmt.Errorf("could not determine the path for model %s", objectType)
 	}
-	var queryArgs string
-	concat := ""
-	for _, arg := range args {
-		queryArgs = fmt.Sprintf("%s%s%s", queryArgs, concat, arg)
-		concat = "&"
-	}
+	queryArgs := buildQueryPath(args...)
 	initalURL := c.buildURL(path+"/?%s", queryArgs)
 	url := &initalURL
 	for url != nil {
@@ -854,4 +843,35 @@ func (c *Client) performDevVMsearch(objectType string, args ...string) ([]Device
 		url = obj.Next
 	}
 	return devices, nil
+}
+
+// buildQueryPath concatenates a strgin of arguments onto a queryPath separated by &
+func buildQueryPath(args ...string) string {
+	var queryArgs string
+	concat := ""
+	for _, arg := range args {
+		queryArgs = fmt.Sprintf("%s%s%s", queryArgs, concat, arg)
+		concat = "&"
+	}
+	return queryArgs
+}
+
+func (c *Client) search(objectType string, resultObj any, args ...string) error {
+	path := GetPathForModel(objectType)
+	if len(args) > 0 {
+		path = path + "/?%s"
+	}
+	queryArgs := buildQueryPath(args...)
+	url := c.buildURL(path, queryArgs)
+	req := c.buildRequest().SetResult(resultObj)
+	resp, err := req.Get(url)
+	if err != nil {
+		c.log.Error("error communicating with netbox", "method", "GET", "url", url, "error", err)
+		return err
+	}
+	if resp.IsError() {
+		c.log.Error("netbox returned an error response", "method", "GET", "url", url, "status", resp.StatusCode())
+		return fmt.Errorf("response error: %v", resp.Error())
+	}
+	return nil
 }

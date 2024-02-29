@@ -22,6 +22,10 @@ func GetPathForModel(model string) string {
 		path = "/ipam/ip-addresses"
 	case "virtualmachine":
 		path = "/virtualization/virtual-machines"
+	case "cluster":
+		path = "/virtualization/clusters"
+	case "cluster-group":
+		path = "/virtualization/cluster-groups"
 	}
 	return path
 }
