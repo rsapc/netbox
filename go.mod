@@ -1,6 +1,6 @@
 module github.com/rsapc/netbox
 
-go 1.21.7
+go 1.21
 
 require (
 	github.com/go-resty/resty/v2 v2.11.0
