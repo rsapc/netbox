@@ -95,10 +95,24 @@ func (c *Client) GetClusterGroup(name string) (ClusterGroup, error) {
 	return group, errors.New("too many results returned")
 }
 
-// TODO: Implement AddClusterGroup
+// AddClusterGroup creates the request group in netbox
 func (c *Client) AddClusterGroup(name string) (ClusterGroup, error) {
 	group := ClusterGroup{}
-	return group, ErrNotImplemented
+	data := make(map[string]interface{})
+	data["name"] = name
+	data["slug"] = Slugify(name)
+	r := c.buildRequest().SetResult(&group)
+	r.SetBody(data)
+	path := GetPathForModel("cluster-group") + "/"
+	resp, err := r.Post(c.buildURL(path))
+	if err != nil {
+		return group, err
+	}
+	if resp.IsError() {
+		c.log.Error("error adding cluster group", "cluster group", name, "error", err)
+		return group, errors.New("error adding cluster group")
+	}
+	return group, nil
 }
 
 // GetOrAddClusterGroup will retrieve the requested cluster group
