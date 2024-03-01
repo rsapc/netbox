@@ -237,7 +237,7 @@ func (c *Client) AddVM(newvm NewVM) (DeviceOrVM, error) {
 
 	r := c.buildRequest().SetResult(&vm)
 	r.SetBody(newvm)
-	path := GetPathForModel("virtual-machine") + "/"
+	path := GetPathForModel("virtualmachine") + "/"
 	resp, err := r.Post(c.buildURL(path))
 	if err != nil {
 		return vm, err
