@@ -243,7 +243,7 @@ func (c *Client) AddVM(newvm NewVM) (DeviceOrVM, error) {
 		return vm, err
 	}
 	if resp.IsError() {
-		c.log.Error("error adding VM", "name", newvm.Name, "error", err)
+		c.log.Error("error adding VM", "name", newvm.Name, "url", r.URL, "status", resp.StatusCode(), "error", resp.Error())
 		return vm, errors.New("error adding cluster group")
 	}
 	return vm, nil
