@@ -89,11 +89,13 @@ type DeviceOrVM struct {
 		Name    string `json:"name"`
 		URL     string `json:"url"`
 	} `json:"rack"`
-	Role   DisplayIDName `json:"role"`
-	Serial string        `json:"serial"`
-	Site   DisplayIDName `json:"site"`
-	Status LabelValue    `json:"status"`
-	URL    string        `json:"url"`
+	Role      DisplayIDName `json:"role"`
+	Serial    string        `json:"serial"`
+	Site      DisplayIDName `json:"site"`
+	Status    LabelValue    `json:"status"`
+	URL       string        `json:"url"`
+	Memory    int           `json:"memory,omitempty"`
+	Diskspace int           `json:"disk,omitempty"`
 }
 type DisplayIDName struct {
 	Display string `json:"display"`

@@ -77,6 +77,15 @@ type ClusterType struct {
 	URL          string                 `json:"url"`
 }
 
+// NewVM is used to create a VM
+type NewVM struct {
+	ClusterID   int    `json:"cluster,omitempty"`
+	Name        string `json:"name"`
+	Memory      int    `json:"memory,omitempty"`
+	Diskspace   int    `json:"disk,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 // GetClusterGroup looks up the cluster by name
 func (c *Client) GetClusterGroup(name string) (ClusterGroup, error) {
 	var group ClusterGroup
@@ -172,6 +181,7 @@ func (c *Client) AddCluster(group string, name string, clusterType string) (any,
 	path := GetPathForModel("cluster") + "/"
 	resp, err := r.Post(c.buildURL(path))
 	if err != nil {
+		c.log.Error("error communicating with netbox adding the cluster", "cluster", name, "error", err)
 		return cluster, err
 	}
 	if resp.IsError() {
@@ -218,4 +228,23 @@ func (c *Client) GetClusterType(name string) (ClusterType, error) {
 		return results.Results[0], nil
 	}
 	return cType, errors.New("too many results returned")
+}
+
+// AddVM creates the requested VM in netbox
+// If clusterID == 0 the VM will not be added to a cluster
+func (c *Client) AddVM(newvm NewVM) (DeviceOrVM, error) {
+	vm := DeviceOrVM{}
+
+	r := c.buildRequest().SetResult(&vm)
+	r.SetBody(newvm)
+	path := GetPathForModel("virtual-machine") + "/"
+	resp, err := r.Post(c.buildURL(path))
+	if err != nil {
+		return vm, err
+	}
+	if resp.IsError() {
+		c.log.Error("error adding VM", "name", newvm.Name, "error", err)
+		return vm, errors.New("error adding cluster group")
+	}
+	return vm, nil
 }
