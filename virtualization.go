@@ -137,7 +137,7 @@ func (c *Client) GetCluster(group string, name string) (Cluster, error) {
 		c.log.Error("Cannot determine cluster group id", "group", group, "error", err)
 		return cluster, err
 	}
-	err := c.search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, name))
+	err = c.search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, name))
 	if err != nil {
 		c.log.Error("error finding cluster", "cluster", name, "error", err)
 		return cluster, err
