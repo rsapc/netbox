@@ -161,7 +161,7 @@ func (c *Client) GetCluster(group string, name string) (Cluster, error) {
 }
 
 // AddCluster creates a new cluster in the given group
-func (c *Client) AddCluster(group string, name string, clusterType string) (any, error) {
+func (c *Client) AddCluster(group string, name string, clusterType string) (Cluster, error) {
 	var cluster Cluster
 	cGroup, err := c.GetClusterGroup(group)
 	if err != nil {
@@ -193,7 +193,7 @@ func (c *Client) AddCluster(group string, name string, clusterType string) (any,
 
 // GetOrAddCluster will retrieve the cluster if found and add it if it does
 // not exist.
-func (c *Client) GetOrAddCluster(group string, name string, clusterType string) (any, error) {
+func (c *Client) GetOrAddCluster(group string, name string, clusterType string) (Cluster, error) {
 	cluster, err := c.GetCluster(group, name)
 	if err == nil {
 		return cluster, err
