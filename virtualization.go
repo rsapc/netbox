@@ -81,6 +81,7 @@ type ClusterType struct {
 type NewVM struct {
 	ClusterID   int    `json:"cluster,omitempty"`
 	Name        string `json:"name"`
+        Status      string `json:"status,omitempty"`
 	Memory      int    `json:"memory,omitempty"`
 	Diskspace   int    `json:"disk,omitempty"`
 	Description string `json:"description,omitempty"`
