@@ -47,6 +47,7 @@ func (c *Client) AddCustomField(name string, label string, readonly bool, object
 	data := make(map[string]interface{})
 	data["namme"] = name
 	data["label"] = label
+	data["type"] = "text"
 	objs := []string{}
 
 	if len(objects) == 0 {
