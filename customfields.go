@@ -45,7 +45,7 @@ func (c *Client) CustomFieldExists(name string) (bool, error) {
 //	objects are the types of objects to attach the field to (at least 1 is requred)
 func (c *Client) AddCustomField(name string, label string, readonly bool, objects ...string) error {
 	data := make(map[string]interface{})
-	data["namme"] = name
+	data["name"] = name
 	data["label"] = label
 	data["type"] = "text"
 	objs := []string{}
