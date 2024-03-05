@@ -1,12 +1,13 @@
 package netbox
 
 import (
+	"errors"
 	"fmt"
 )
 
 // FindInterfaceByName searches Netbox for the given interface name on the requested device
-func (c *Client) FindInterfaceByName(netboxDevice int64, ifName string) (intf Interface, err error) {
-	intfs, err := c.searchInterfaces(netboxDevice, fmt.Sprintf("name=%s", ifName))
+func (c *Client) FindInterfaceByName(netboxType string, netboxDevice int64, ifName string) (intf Interface, err error) {
+	intfs, err := c.searchInterfaces(netboxType, netboxDevice, fmt.Sprintf("name=%s", ifName))
 	if err != nil {
 		return intf, err
 	}
@@ -17,15 +18,24 @@ func (c *Client) FindInterfaceByName(netboxDevice int64, ifName string) (intf In
 }
 
 // GetInterfacesforDevices returns all interfaces for the given device.
-func (c *Client) GetInterfacesForDevice(netboxDevice int64) (intfs []Interface, err error) {
-	return c.searchInterfaces(netboxDevice)
+func (c *Client) GetInterfacesForObject(netboxType string, netboxDevice int64) (intfs []Interface, err error) {
+	return c.searchInterfaces(netboxType, netboxDevice)
 }
 
-func (c *Client) searchInterfaces(netboxDevice int64, args ...string) (intfs []Interface, err error) {
+func (c *Client) searchInterfaces(netboxType string, netboxDevice int64, args ...string) (intfs []Interface, err error) {
 	var url *string
+	id := "device_id"
+
+	model, err := getInterfaceType(netboxType)
+	if err != nil {
+		return nil, err
+	}
+	if netboxType == "virtualmachine" {
+		id = "virtual_machine_id"
+	}
 	obj := &InterfacesResponse{}
 	r := c.buildRequest().SetResult(obj)
-	path := GetPathForModel("interface") + "/?device_id=%d"
+	path := GetPathForModel(model) + "/?" + id + "=%d"
 	for _, arg := range args {
 		path = fmt.Sprintf("%s&%s", path, arg)
 	}
@@ -48,13 +58,25 @@ func (c *Client) searchInterfaces(netboxDevice int64, args ...string) (intfs []I
 
 }
 
+func getInterfaceType(netboxType string) (string, error) {
+	model := map[string]string{"device": "interface", "virtualmachine": "vminterface"}
+	if netboxType != "device" && netboxType != "virtualmachine" {
+		return "nil", errors.New("netboxType must be one of 'device' or 'virtualmachine'")
+	}
+	return model[netboxType], nil
+}
+
 // AddInterface will create a new interface on the given device
-func (c *Client) AddInterface(netboxDevice int64, intf InterfaceEdit) error {
+func (c *Client) AddInterface(netboxType string, netboxDevice int64, intf InterfaceEdit) error {
 	devid := int(netboxDevice)
 	intf.Device = &devid
+	ifType, err := getInterfaceType(netboxType)
+	if err != nil {
+		return err
+	}
 	r := c.buildRequest().SetBody(intf)
 	c.log.Info("adding interface", "body", r.Body)
-	resp, err := r.Post(c.buildURL(GetPathForModel("interface") + "/"))
+	resp, err := r.Post(c.buildURL(GetPathForModel(ifType) + "/"))
 	if err != nil {
 		c.log.Error("error adding interface", "device", netboxDevice, "interface", intf.Name, "error", err)
 		return err
@@ -68,9 +90,13 @@ func (c *Client) AddInterface(netboxDevice int64, intf InterfaceEdit) error {
 }
 
 // UpdateInterface modifies the values of the given interface in Netbox
-func (c *Client) UpdateInterface(intfID int64, intf InterfaceEdit) error {
+func (c *Client) UpdateInterface(netboxType string, intfID int64, intf InterfaceEdit) error {
+	ifType, err := getInterfaceType(netboxType)
+	if err != nil {
+		return err
+	}
 	r := c.buildRequest().SetBody(intf)
-	resp, err := r.Patch(c.buildURL(GetPathForModel("interface")+"/%d/", intfID))
+	resp, err := r.Patch(c.buildURL(GetPathForModel(ifType)+"/%d/", intfID))
 	if err != nil {
 		c.log.Error("error updating interface", "interface", intfID, "error", err)
 		return err

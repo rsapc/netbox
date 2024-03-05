@@ -29,7 +29,7 @@ func GetPathForModel(model string) string {
 	case "cluster-type":
 		path = "/virtualization/cluster-types"
 	case "vminterface":
-		path = "/virtualization/vminterfaces"
+		path = "/virtualization/interfaces"
 	case "customfield":
 		fallthrough
 	case "custom-field":

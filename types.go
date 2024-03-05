@@ -231,6 +231,7 @@ type InterfacesResponse struct {
 type InterfaceEdit struct {
 	Description string      `json:"description,omitempty"`
 	Device      *int        `json:"device,omitempty"`
+	VM          *int        `json:"virtual_machine,omitempty"`
 	Display     *string     `json:"display,omitempty"`
 	Duplex      *string     `json:"duplex,omitempty"`
 	Label       *string     `json:"label,omitempty"`
