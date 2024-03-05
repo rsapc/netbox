@@ -24,7 +24,8 @@ func (c *Client) CustomFieldExists(name string) (bool, error) {
 	if err != nil {
 		return exists, err
 	}
-	switch field["count"] {
+	count := field["count"].(float64)
+	switch count {
 	case 0:
 		exists = false
 	case 1:
