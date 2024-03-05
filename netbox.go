@@ -18,8 +18,6 @@ import (
 var ErrNotFound = errors.New("the requested object was not found")
 var ErrNotImplemented = errors.New("not implemented")
 
-const region = 12
-
 const (
 	updateSitePath = "/dcim/sites/{id}/"
 	addSitePath    = "/dcim/sites/"
@@ -392,44 +390,7 @@ func (c *Client) GetDeviceOrVM(url string) (DeviceOrVM, error) {
 	return obj, err
 }
 
-func (c *Client) AddSite(row map[string]string) error {
-	var id int
-	var found bool
-	pid, found := getPreviousSite(row)
-	if found {
-		return c.AddLocation(pid, row)
-	}
-	name := row["Service Street 1"]
-	found, id = c.checkSite("name", name)
-	if found {
-		return c.UpdateSite(id, row)
-	} else {
-		found, id := c.checkSite("slug", Slugify(name))
-		if found {
-			return c.UpdateSite(id, row)
-		}
-	}
-	data := make(map[string]interface{})
-	data["custom_fields"] = buildCustomFields(row)
-	data["name"] = name
-	data["slug"] = Slugify(name)
-	data["region"] = region
-	data["group"] = customerGroup.ID
-	data["comments"] = row["comments"]
-	data["physical_address"] = fmt.Sprintf("%s\n%s, %s %s", row["Service Street 2"], row["Service City"], row["Service State"], row["Service ZIP code"])
-	data["tags"] = []Tag{apcTag, jobberTag}
-	company := row["Company Name"]
-	if company != "A.P. Backbone Sites" {
-		data["tags"] = append(data["tags"].([]Tag), customerTag)
-		customer := row["Service Street 1"]
-		if !strings.Contains(company, "Customer") {
-			customer = company
-		}
-		if tenant, err := c.GetOrAddTenant(customer); err == nil {
-			data["tenant"] = tenant.ID
-		}
-	}
-
+func (c *Client) AddSite(data map[string]interface{}) error {
 	obj := make(map[string]interface{})
 	r := c.buildRequest().SetResult(&obj)
 	r.SetBody(data)
@@ -439,9 +400,7 @@ func (c *Client) AddSite(row map[string]string) error {
 	}
 	log.Printf("added site: %v %s", obj["id"], data["name"])
 	err = checkStatus(resp)
-	if err == nil {
-		updateAddress(obj["id"].(float64), row)
-	}
+
 	return err
 }
 
@@ -457,15 +416,6 @@ func (c *Client) SetMonitoringID(model string, modelID int64, devid int) error {
 		c.AddJournalEntry(model, modelID, SuccessLevel, msg)
 	}
 	return err
-}
-
-func (c *Client) UpdateCustomFieldOnModel(model string, modelID int64, field string, value any) error {
-	cf := make(map[string]interface{})
-	data := make(map[string]interface{})
-	cf[field] = value
-	data["custom_fields"] = cf
-
-	return c.UpdateObject(model, modelID, data)
 }
 
 // UpdateObject takes an object and updates it
@@ -494,69 +444,6 @@ func (c *Client) UpdateObjectByURL(url string, payload map[string]interface{}) e
 		return fmt.Errorf("netbox returned %d", resp.StatusCode())
 	}
 	return nil
-}
-
-func (c *Client) UpdateSite(id int, row map[string]string) error {
-	s, err := c.GetSite(id)
-	if err != nil {
-		if strings.Contains(err.Error(), "[404]") {
-			return c.AddSite(row)
-		} else {
-			log.Fatal(err)
-		}
-	}
-	site := *s.(*map[string]interface{})
-
-	data := make(map[string]interface{})
-	data["name"] = site["name"]
-	data["slug"] = site["slug"]
-
-	if strings.Contains(fmt.Sprintf("%v", site["comments"]), "<!-- jobber:import:start -->") {
-		data["comments"] = replaceComments(fmt.Sprint(site["comments"]), row["comments"])
-	} else {
-		data["comments"] = fmt.Sprintf("%s\n\n----\n%s", site["comments"], row["comments"])
-	}
-
-	data["custom_fields"] = buildCustomFields(row)
-
-	company := row["Company Name"]
-	if company != "A.P. Backbone Sites" {
-		if _, ok := data["tags"]; ok {
-			data["tags"] = append(data["tags"].([]Tag), customerTag)
-		} else {
-			data["tags"] = []Tag{customerTag}
-		}
-		customer := row["Service Street 1"]
-		if !strings.Contains(company, "Customer") {
-			customer = company
-		}
-
-		if tenant, err := c.GetOrAddTenant(customer); err == nil {
-			data["tenant"] = tenant.ID
-		}
-	}
-
-	obj := make(map[string]interface{})
-	r := c.buildRequest().SetResult(&obj)
-	r.SetBody(data)
-	r.SetPathParam("id", fmt.Sprintf("%d", id))
-	resp, err := r.Put(c.buildURL(updateSitePath))
-	if err != nil {
-		return err
-	}
-	log.Printf("updated site %d: %s\n", id, row["Service Street 1"])
-	err = checkStatus(resp)
-	if err == nil {
-		updateAddress(obj["id"].(float64), row)
-	}
-	return err
-}
-
-func buildCustomFields(row map[string]string) map[string]interface{} {
-	custom_fields := make(map[string]interface{})
-	custom_fields["accesscode"] = row["PFT[Keys/ Codes]"]
-	custom_fields["access_notes"] = row["PFT[Building Access Notes/ Directions]"]
-	return custom_fields
 }
 
 // Slugify takes a string and converts it to a slug by:
@@ -686,14 +573,7 @@ func (c *Client) AddLocation(site float64, row map[string]string) error {
 	data["slug"] = Slugify(fmt.Sprint(row["Service Street 1"]))
 	data["site"] = site
 	data["status"] = "active"
-	data["custom_fields"] = buildCustomFields(row)
 	data["tags"] = []Tag{apcTag, jobberTag}
-	if row["Company Name"] != "A.P. Backbone Sites" {
-		data["tags"] = append(data["tags"].([]Tag), customerTag)
-		if tenant, err := c.GetOrAddTenant(row["Service Street 1"]); err == nil {
-			data["tenant"] = tenant.ID
-		}
-	}
 
 	obj := make(map[string]interface{})
 	r := c.buildRequest().SetResult(&obj)
@@ -709,28 +589,8 @@ func (c *Client) AddLocation(site float64, row map[string]string) error {
 	return c.AddJournalEntry("location", obj["id"].(int64), InfoLevel, row["comments"])
 }
 
-func updateAddress(site float64, row map[string]string) {
-	addr1 := row["Service Street 1"]
-	addr2 := row["Service Street 2"]
-	if addr2 != "" {
-		addresses[addr2] = site
-	} else {
-		addresses[addr1] = site
-	}
-}
-
-func getPreviousSite(row map[string]string) (id float64, found bool) {
-	addr1 := row["Service Street 1"]
-	addr2 := row["Service Street 2"]
-	if addr2 != "" {
-		id, found = addresses[addr2]
-		return
-	} else {
-		id, found = addresses[addr1]
-		return
-	}
-}
-
+// GetOrAddTenant retrieves the named tenant, or creates it if
+// it does not exist
 func (c *Client) GetOrAddTenant(name string) (*Tenant, error) {
 	obj := &SearchResults{}
 	tenant := &Tenant{}
