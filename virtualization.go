@@ -81,7 +81,7 @@ type ClusterType struct {
 type NewVM struct {
 	ClusterID   int    `json:"cluster,omitempty"`
 	Name        string `json:"name"`
-        Status      string `json:"status,omitempty"`
+	Status      string `json:"status,omitempty"`
 	Memory      int    `json:"memory,omitempty"`
 	Diskspace   int    `json:"disk,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -229,6 +229,28 @@ func (c *Client) GetClusterType(name string) (ClusterType, error) {
 		return results.Results[0], nil
 	}
 	return cType, errors.New("too many results returned")
+}
+
+// AddClusterType will create a new type
+func (c *Client) AddClusterType(name string) (ClusterType, error) {
+	clusterType := ClusterType{}
+	data := make(map[string]interface{})
+	data["name"] = name
+	data["slug"] = Slugify(name)
+
+	r := c.buildRequest().SetResult(&clusterType)
+	r.SetBody(data)
+	path := GetPathForModel("cluster-type") + "/"
+	resp, err := r.Post(c.buildURL(path))
+	if err != nil {
+		c.log.Error("could not create cluster type", "name", name, "error", err)
+		return clusterType, err
+	}
+	if resp.IsError() {
+		c.log.Error("invalid response from Netbox", "status", resp.StatusCode(), "body", resp.Body())
+		return clusterType, err
+	}
+	return clusterType, nil
 }
 
 // AddVM creates the requested VM in netbox
