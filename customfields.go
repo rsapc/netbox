@@ -58,7 +58,7 @@ func (c *Client) AddCustomField(name string, label string, readonly bool, object
 	}
 	data["content_types"] = objs
 	if readonly {
-		data["ui_visibility"] = "read-only"
+		data["ui_editable"] = "no"
 	}
 	path := GetPathForModel("customfield") + "/"
 	r := c.buildRequest()
