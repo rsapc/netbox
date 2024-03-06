@@ -418,8 +418,8 @@ func (c *Client) SetMonitoringID(model string, modelID int64, devid int) error {
 	return err
 }
 
-// UpdateObject takes an object and updates it
-func (c *Client) UpdateObject(model string, modelID int64, payload map[string]interface{}) error {
+// UpdateObjectWithMap takes an object and updates it
+func (c *Client) UpdateObject(model string, modelID int64, payload any) error {
 	path := GetPathForModel(model)
 	if path == "" {
 		c.log.Error("could not determine the path for model %s", model)
@@ -429,7 +429,18 @@ func (c *Client) UpdateObject(model string, modelID int64, payload map[string]in
 	return c.UpdateObjectByURL(c.buildURL(path), payload)
 }
 
-func (c *Client) UpdateObjectByURL(url string, payload map[string]interface{}) error {
+// UpdateObjectWithMap takes an object and updates it
+func (c *Client) UpdateObjectWithMap(model string, modelID int64, payload map[string]interface{}) error {
+	path := GetPathForModel(model)
+	if path == "" {
+		c.log.Error("could not determine the path for model %s", model)
+		return fmt.Errorf("could not determine the path for model %s", model)
+	}
+	path = fmt.Sprintf("%s/%d/", path, modelID)
+	return c.UpdateObjectByURL(c.buildURL(path), payload)
+}
+
+func (c *Client) UpdateObjectByURL(url string, payload any) error {
 	c.log.Debug(fmt.Sprintf("Updating %s", url))
 	obj := make(map[string]interface{})
 	r := c.buildRequest().SetResult(&obj)

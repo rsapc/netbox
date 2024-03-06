@@ -11,7 +11,7 @@ func (c *Client) UpdateCustomFieldOnModel(model string, modelID int64, field str
 	cf[field] = value
 	data["custom_fields"] = cf
 
-	return c.UpdateObject(model, modelID, data)
+	return c.UpdateObjectWithMap(model, modelID, data)
 }
 
 // CustomFieldExists checks to see if a custom field exists in Netbox
