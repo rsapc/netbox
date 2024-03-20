@@ -22,7 +22,6 @@ const (
 	updateSitePath = "/dcim/sites/{id}/"
 	addSitePath    = "/dcim/sites/"
 	tenantPath     = "/tenancy/tenants/"
-	ipPath         = "/ipam/ip-addresses/"
 )
 
 var slugregex *regexp.Regexp
@@ -237,51 +236,6 @@ func checkStatus(resp *resty.Response) error {
 		return fmt.Errorf("invalid response to %s %s: [%d] %v %v", resp.Request.Method, resp.Request.URL, resp.StatusCode(), resp.Error(), string(resp.Body()))
 	}
 	return nil
-}
-
-func (c *Client) SearchIP(ip string) (*IPSearchResults, error) {
-	obj := &IPSearchResults{}
-	r := c.buildRequest().SetResult(obj)
-	url := fmt.Sprintf("%s?address=%s", c.buildURL(ipPath), ip)
-	resp, err := r.Get(url)
-	if err != nil {
-		c.log.Error("Could not find address", "err", err)
-		return obj, err
-	}
-	if err = checkStatus(resp); err != nil {
-		c.log.Error("Error returned by netbox", "err", err)
-		return obj, err
-	}
-	return obj, err
-}
-
-func (c *Client) SetIPDNS(ip string, dns string) error {
-	obj, err := c.SearchIP(ip)
-	if err != nil {
-		c.log.Error("Could not find address", "err", err)
-		return err
-	}
-	for _, addr := range obj.Results {
-		if addr.DNSName == "" {
-			c.UpdateAddress(addr.URL, dns)
-		}
-	}
-	return err
-}
-
-func (c *Client) UpdateAddress(url, dns string) {
-	data := make(map[string]interface{})
-	data["dns_name"] = dns
-	obj := make(map[string]interface{})
-	r := c.buildRequest().SetResult(&obj)
-	r.SetBody(data)
-	resp, err := r.Patch(url)
-	if err != nil {
-		c.log.Error("Could not update DNS", "url", url, "err", err)
-	}
-	if err = checkStatus(resp); err != nil {
-		c.log.Error("Error returned by netbox", "url", url, "err", err)
-	}
 }
 
 func (c *Client) GetSite(id int) (interface{}, error) {
