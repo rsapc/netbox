@@ -60,17 +60,17 @@ func (c *Client) UpdateAddress(url, dns string) {
 }
 
 // AddIP adds an IP address to Netbox
-func (c *Client) AddIP(ipaddress string) error {
+func (c *Client) AddIP(ipaddress string) (IP, error) {
 	data := make(map[string]interface{})
 	data["address"] = ipaddress
-	obj := make(map[string]interface{})
+	obj := IP{}
 	r := c.buildRequest().SetResult(&obj)
 	r.SetBody(data)
 	resp, err := r.Post(c.buildURL(ipPath))
 	if err != nil {
-		return err
+		return obj, err
 	}
 	err = checkStatus(resp)
 
-	return err
+	return obj, err
 }

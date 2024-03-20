@@ -138,56 +138,58 @@ type IPSearchResults struct {
 	Count    int         `json:"count"`
 	Next     interface{} `json:"next"`
 	Previous interface{} `json:"previous"`
-	Results  []struct {
-		Address        string `json:"address"`
-		AssignedObject struct {
-			Cable  interface{} `json:"cable"`
-			Device struct {
-				Display string `json:"display"`
-				ID      int    `json:"id"`
-				Name    string `json:"name"`
-				URL     string `json:"url"`
-			} `json:"device"`
-			Display  string `json:"display"`
-			ID       int    `json:"id"`
-			Name     string `json:"name"`
-			Occupied bool   `json:"_occupied"`
-			URL      string `json:"url"`
-		} `json:"assigned_object"`
-		AssignedObjectID   int    `json:"assigned_object_id"`
-		AssignedObjectType string `json:"assigned_object_type"`
-		Comments           string `json:"comments"`
-		Created            string `json:"created"`
-		CustomFields       struct {
-		} `json:"custom_fields"`
-		DNSName     string `json:"dns_name"`
-		Description string `json:"description"`
-		Display     string `json:"display"`
-		Family      struct {
-			Label string `json:"label"`
-			Value int    `json:"value"`
-		} `json:"family"`
-		ID          int           `json:"id"`
-		LastUpdated string        `json:"last_updated"`
-		NatInside   interface{}   `json:"nat_inside"`
-		NatOutside  []interface{} `json:"nat_outside"`
-		Role        interface{}   `json:"role"`
-		Status      struct {
-			Label string `json:"label"`
-			Value string `json:"value"`
-		} `json:"status"`
-		Tags []struct {
-			Color   string `json:"color"`
+	Results  []IP        `json:"results"`
+}
+
+type IP struct {
+	Address        string `json:"address"`
+	AssignedObject struct {
+		Cable  interface{} `json:"cable"`
+		Device struct {
 			Display string `json:"display"`
 			ID      int    `json:"id"`
 			Name    string `json:"name"`
-			Slug    string `json:"slug"`
 			URL     string `json:"url"`
-		} `json:"tags"`
-		Tenant interface{} `json:"tenant"`
-		URL    string      `json:"url"`
-		Vrf    interface{} `json:"vrf"`
-	} `json:"results"`
+		} `json:"device"`
+		Display  string `json:"display"`
+		ID       int    `json:"id"`
+		Name     string `json:"name"`
+		Occupied bool   `json:"_occupied"`
+		URL      string `json:"url"`
+	} `json:"assigned_object"`
+	AssignedObjectID   int    `json:"assigned_object_id"`
+	AssignedObjectType string `json:"assigned_object_type"`
+	Comments           string `json:"comments"`
+	Created            string `json:"created"`
+	CustomFields       struct {
+	} `json:"custom_fields"`
+	DNSName     string `json:"dns_name"`
+	Description string `json:"description"`
+	Display     string `json:"display"`
+	Family      struct {
+		Label string `json:"label"`
+		Value int    `json:"value"`
+	} `json:"family"`
+	ID          int           `json:"id"`
+	LastUpdated string        `json:"last_updated"`
+	NatInside   interface{}   `json:"nat_inside"`
+	NatOutside  []interface{} `json:"nat_outside"`
+	Role        interface{}   `json:"role"`
+	Status      struct {
+		Label string `json:"label"`
+		Value string `json:"value"`
+	} `json:"status"`
+	Tags []struct {
+		Color   string `json:"color"`
+		Display string `json:"display"`
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		Slug    string `json:"slug"`
+		URL     string `json:"url"`
+	} `json:"tags"`
+	Tenant interface{} `json:"tenant"`
+	URL    string      `json:"url"`
+	Vrf    interface{} `json:"vrf"`
 }
 
 func init() {
