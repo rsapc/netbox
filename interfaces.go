@@ -67,26 +67,28 @@ func getInterfaceType(netboxType string) (string, error) {
 }
 
 // AddInterface will create a new interface on the given device
-func (c *Client) AddInterface(netboxType string, netboxDevice int64, intf InterfaceEdit) error {
+func (c *Client) AddInterface(netboxType string, netboxDevice int64, intf InterfaceEdit) (Interface, error) {
 	devid := int(netboxDevice)
+	newIntf := Interface{}
 	intf.Device = &devid
 	ifType, err := getInterfaceType(netboxType)
 	if err != nil {
-		return err
+		return newIntf, err
 	}
-	r := c.buildRequest().SetBody(intf)
+	r := c.buildRequest().SetResult(&newIntf).SetBody(intf)
+
 	c.log.Info("adding interface", "body", r.Body)
 	resp, err := r.Post(c.buildURL(GetPathForModel(ifType) + "/"))
 	if err != nil {
 		c.log.Error("error adding interface", "device", netboxDevice, "interface", intf.Name, "error", err)
-		return err
+		return newIntf, err
 	}
 	if err = checkStatus(resp); err != nil {
 		c.log.Error("error checking status", "status", resp.StatusCode(), "error", err)
-		return err
+		return newIntf, err
 	}
 	c.log.Info("add interface", "interface", *intf.Name, "status", resp.StatusCode(), "url", r.URL)
-	return nil
+	return newIntf, nil
 }
 
 // UpdateInterface modifies the values of the given interface in Netbox
