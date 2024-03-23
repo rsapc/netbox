@@ -20,7 +20,7 @@ func (c *Client) CustomFieldExists(name string) (bool, error) {
 	exists := false
 	field := make(map[string]interface{})
 
-	err := c.search("customfield", &field, fmt.Sprintf("name=%s", name))
+	err := c.Search("customfield", &field, fmt.Sprintf("name=%s", name))
 	if err != nil {
 		return exists, err
 	}

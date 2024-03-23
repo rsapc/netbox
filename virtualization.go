@@ -91,7 +91,7 @@ type NewVM struct {
 func (c *Client) GetClusterGroup(name string) (ClusterGroup, error) {
 	var group ClusterGroup
 	results := &ClusterGroupResponse{}
-	err := c.search("cluster-group", results, fmt.Sprintf("name=%s", name))
+	err := c.Search("cluster-group", results, fmt.Sprintf("name=%s", name))
 	if err != nil {
 		c.log.Error("error finding cluster group", "group", name, "error", err)
 		return group, err
@@ -147,7 +147,7 @@ func (c *Client) GetCluster(group string, name string) (Cluster, error) {
 		c.log.Error("Cannot determine cluster group id", "group", group, "error", err)
 		return cluster, err
 	}
-	err = c.search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, name))
+	err = c.Search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, name))
 	if err != nil {
 		c.log.Error("error finding cluster", "cluster", name, "error", err)
 		return cluster, err
@@ -217,7 +217,7 @@ func (c *Client) GetClusterType(name string) (ClusterType, error) {
 	var cType ClusterType
 	results := &ClusterTypesResponse{}
 	args := []string{fmt.Sprintf("slug=%s", Slugify(name))}
-	err := c.search("cluster-type", results, args...)
+	err := c.Search("cluster-type", results, args...)
 	if err != nil {
 		c.log.Error("error finding cluster type", "type", name, "error", err)
 		return cType, err

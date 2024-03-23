@@ -407,7 +407,7 @@ func (c *Client) UpdateObjectByURL(url string, payload any) error {
 		return err
 	}
 	if resp.IsError() {
-		c.log.Error(fmt.Sprintf("invalid response from server: %d: %v", resp.StatusCode(), resp.Error()), "url", r.URL)
+		c.log.Error(fmt.Sprintf("invalid response from server: %d: %v", resp.StatusCode(), resp.Error()), "url", r.URL, "body", resp.Body())
 		return fmt.Errorf("netbox returned %d", resp.StatusCode())
 	}
 	return nil
@@ -683,7 +683,7 @@ func buildQueryPath(args ...string) string {
 	return queryArgs
 }
 
-func (c *Client) search(objectType string, resultObj any, args ...string) error {
+func (c *Client) Search(objectType string, resultObj any, args ...string) error {
 	path := GetPathForModel(objectType)
 	if len(args) > 0 {
 		path = path + "/?%s"
