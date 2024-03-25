@@ -71,7 +71,7 @@ func (c *Client) AddCustomField(name string, label string, readonly bool, object
 	}
 	if resp.IsError() {
 		c.log.Error("netbox returned an error", "status", resp.StatusCode(), "body", resp.Body())
-		return err
+		return fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 	}
 	return nil
 }

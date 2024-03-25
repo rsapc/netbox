@@ -305,7 +305,7 @@ func (c *Client) searchMonitoredID(monitoringID int, objectType string) (object 
 	}
 	if resp.IsError() {
 		c.log.Error(fmt.Sprintf("%d searching %s", resp.StatusCode(), r.URL), "err", err)
-		return object, err
+		return object, errors.New(string(resp.Body()))
 	}
 	if obj.Count == 0 {
 		return object, ErrNotFound
@@ -341,7 +341,7 @@ func (c *Client) GetDeviceOrVM(url string) (DeviceOrVM, error) {
 	}
 	if resp.IsError() {
 		c.log.Error(fmt.Sprintf("%d searching %s", resp.StatusCode(), r.URL), "err", err)
-		return obj, err
+		return obj, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 	}
 	return obj, err
 }
@@ -408,7 +408,7 @@ func (c *Client) UpdateObjectByURL(url string, payload any) error {
 	}
 	if resp.IsError() {
 		c.log.Error(fmt.Sprintf("invalid response from server: %d: %v", resp.StatusCode(), resp.Error()), "url", r.URL, "body", resp.Body())
-		return fmt.Errorf("netbox returned %d", resp.StatusCode())
+		return fmt.Errorf("netbox returned %d: %s", resp.StatusCode(), resp.Body())
 	}
 	return nil
 }
@@ -664,7 +664,7 @@ func (c *Client) performDevVMsearch(objectType string, args ...string) ([]Device
 		}
 		if resp.IsError() {
 			c.log.Error(fmt.Sprintf("%d searching %s", resp.StatusCode(), r.URL), "err", err)
-			return devices, err
+			return devices, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 		}
 		devices = append(devices, obj.Results...)
 		url = obj.Next

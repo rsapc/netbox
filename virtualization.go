@@ -248,7 +248,7 @@ func (c *Client) AddClusterType(name string) (ClusterType, error) {
 	}
 	if resp.IsError() {
 		c.log.Error("invalid response from Netbox", "status", resp.StatusCode(), "body", resp.Body())
-		return clusterType, err
+		return clusterType, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 	}
 	return clusterType, nil
 }

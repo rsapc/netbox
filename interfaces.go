@@ -49,7 +49,7 @@ func (c *Client) searchInterfaces(netboxType string, netboxDevice int64, args ..
 		}
 		if resp.IsError() {
 			c.log.Error(fmt.Sprintf("%d searching %s", resp.StatusCode(), r.URL), "err", err)
-			return intfs, err
+			return intfs, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 		}
 		intfs = append(intfs, obj.Results...)
 		url = obj.Next
