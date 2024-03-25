@@ -43,10 +43,10 @@ func getObjectType(aModel string) string {
 	case "vminterface":
 		fallthrough
 	case "cluster-group":
-                aModel = "clustergroup"
+		aModel = "clustergroup"
 		fallthrough
 	case "cluster-type":
-                aModel = "clustertype"
+		aModel = "clustertype"
 		fallthrough
 	case "cluster":
 		fallthrough
@@ -143,30 +143,25 @@ type Interface struct {
 		Label   string `json:"label"`
 		URL     string `json:"url"`
 	} `json:"cable"`
-	CableEnd                    string      `json:"cable_end"`
-	ConnectedEndpoints          interface{} `json:"connected_endpoints"`
-	ConnectedEndpointsReachable *bool       `json:"connected_endpoints_reachable"`
-	ConnectedEndpointsType      interface{} `json:"connected_endpoints_type"`
-	CountFhrpGroups             int         `json:"count_fhrp_groups"`
-	CountIpaddresses            int         `json:"count_ipaddresses"`
-	Created                     string      `json:"created"`
-	CustomFields                struct {
-		ChannelFreq  interface{} `json:"channel_freq"`
-		ChannelWidth interface{} `json:"channel_width"`
-		Ssid         interface{} `json:"ssid"`
-		WirelessRole interface{} `json:"wireless_role"`
-	} `json:"custom_fields"`
-	Description      string        `json:"description"`
-	Device           DisplayIDName `json:"device"`
-	Display          string        `json:"display"`
-	Duplex           *LabelValue   `json:"duplex"`
-	Enabled          bool          `json:"enabled"`
-	ID               int           `json:"id"`
-	L2vpnTermination interface{}   `json:"l2vpn_termination"`
-	Label            string        `json:"label"`
-	Lag              interface{}   `json:"lag"`
-	LastUpdated      string        `json:"last_updated"`
-	LinkPeers        []struct {
+	CableEnd                    string                 `json:"cable_end"`
+	ConnectedEndpoints          interface{}            `json:"connected_endpoints"`
+	ConnectedEndpointsReachable *bool                  `json:"connected_endpoints_reachable"`
+	ConnectedEndpointsType      interface{}            `json:"connected_endpoints_type"`
+	CountFhrpGroups             int                    `json:"count_fhrp_groups"`
+	CountIpaddresses            int                    `json:"count_ipaddresses"`
+	Created                     string                 `json:"created"`
+	CustomFields                map[string]interface{} `json:"custom_fields"`
+	Description                 string                 `json:"description"`
+	Device                      DisplayIDName          `json:"device"`
+	Display                     string                 `json:"display"`
+	Duplex                      *LabelValue            `json:"duplex"`
+	Enabled                     bool                   `json:"enabled"`
+	ID                          int                    `json:"id"`
+	L2vpnTermination            interface{}            `json:"l2vpn_termination"`
+	Label                       string                 `json:"label"`
+	Lag                         interface{}            `json:"lag"`
+	LastUpdated                 string                 `json:"last_updated"`
+	LinkPeers                   []struct {
 		Cable    int           `json:"cable"`
 		Device   DisplayIDName `json:"device"`
 		Display  string        `json:"display"`
