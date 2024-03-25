@@ -702,3 +702,19 @@ func (c *Client) Search(objectType string, resultObj any, args ...string) error 
 	}
 	return nil
 }
+
+// GetByURL is useful for iterating through search results using the Next URL value.
+// The response object can be a pointer or object and will be returned.
+func (c *Client) GetByURL(url string, obj interface{}) (interface{}, error) {
+	r := c.buildRequest().SetResult(obj)
+	resp, err := r.Get(url)
+	if err != nil {
+		c.log.Error(fmt.Sprintf("error calling %s", r.URL), "err", err)
+		return obj, err
+	}
+	if resp.IsError() {
+		c.log.Error(fmt.Sprintf("%d calling %s", resp.StatusCode(), r.URL), "err", err)
+		return obj, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
+	}
+	return obj, err
+}
