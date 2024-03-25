@@ -77,7 +77,6 @@ func (c *Client) AddInterface(netboxType string, netboxDevice int64, intf Interf
 	}
 	r := c.buildRequest().SetResult(&newIntf).SetBody(intf)
 
-	c.log.Info("adding interface", "body", r.Body)
 	resp, err := r.Post(c.buildURL(GetPathForModel(ifType) + "/"))
 	if err != nil {
 		c.log.Error("error adding interface", "device", netboxDevice, "interface", intf.Name, "error", err)
