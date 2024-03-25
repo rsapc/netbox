@@ -43,8 +43,10 @@ func getObjectType(aModel string) string {
 	case "vminterface":
 		fallthrough
 	case "cluster-group":
+                aModel = "clustergroup"
 		fallthrough
 	case "cluster-type":
+                aModel = "clustertype"
 		fallthrough
 	case "cluster":
 		fallthrough
