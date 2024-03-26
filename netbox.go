@@ -414,6 +414,22 @@ func (c *Client) UpdateObjectByURL(url string, payload any) error {
 	return nil
 }
 
+// DeleteObjectByURL will send a DELETE command to the provided URL
+func (c *Client) DeleteObjectByURL(url string) error {
+	c.log.Debug(fmt.Sprintf("Deleting %s", url))
+	r := c.buildRequest()
+	resp, err := r.Delete(url)
+	if err != nil {
+		c.log.Warn(err.Error())
+		return err
+	}
+	if resp.IsError() {
+		c.log.Error(fmt.Sprintf("invalid response from server: %d: %v", resp.StatusCode(), resp.Error()), "url", r.URL, "body", resp.Body())
+		return fmt.Errorf("netbox returned %d: %s", resp.StatusCode(), resp.Body())
+	}
+	return nil
+}
+
 // Slugify takes a string and converts it to a slug by:
 // 1. Converting to lowercase.
 // 2. Removing characters that aren’t alphanumerics, underscores, hyphens, or whitespace.
