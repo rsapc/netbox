@@ -82,18 +82,19 @@ type DeviceOrVM struct {
 	Created      string  `json:"created"`
 	CustomFields struct {
 		MonitoringID *int `json:"monitoring_id"`
-	} `json:"custom_fields"`
-	Description string        `json:"description"`
-	DeviceRole  DisplayIDName `json:"device_role"`
-	Display     string        `json:"display"`
-	ID          int           `json:"id"`
-	LastUpdated string        `json:"last_updated"`
-	Latitude    *float64      `json:"latitude"`
-	Longitude   *float64      `json:"longitude"`
-	Name        string        `json:"name"`
-	PrimaryIP   PrimaryI      `json:"primary_ip"`
-	PrimaryIp4  PrimaryI      `json:"primary_ip4"`
-	Rack        struct {
+	} `json:"-"`
+	CustomFieldsMap map[string]interface{} `json:"custom_fields"`
+	Description     string                 `json:"description"`
+	DeviceRole      DisplayIDName          `json:"device_role"`
+	Display         string                 `json:"display"`
+	ID              int                    `json:"id"`
+	LastUpdated     string                 `json:"last_updated"`
+	Latitude        *float64               `json:"latitude"`
+	Longitude       *float64               `json:"longitude"`
+	Name            string                 `json:"name"`
+	PrimaryIP       PrimaryI               `json:"primary_ip"`
+	PrimaryIp4      PrimaryI               `json:"primary_ip4"`
+	Rack            struct {
 		Display string `json:"display"`
 		ID      int    `json:"id"`
 		Name    string `json:"name"`

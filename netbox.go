@@ -343,6 +343,7 @@ func (c *Client) GetDeviceOrVM(url string) (DeviceOrVM, error) {
 		c.log.Error(fmt.Sprintf("%d searching %s", resp.StatusCode(), r.URL), "err", err)
 		return obj, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 	}
+	setDeviceCustomFields(&obj)
 	return obj, err
 }
 
@@ -633,6 +634,9 @@ func (c *Client) SearchDeviceAndVM(args ...string) ([]DeviceOrVM, error) {
 		return nil, err
 	}
 	devices = append(devices, vms...)
+	for _, dev := range devices {
+		setDeviceCustomFields(&dev)
+	}
 	return devices, nil
 }
 
@@ -668,6 +672,9 @@ func (c *Client) performDevVMsearch(objectType string, args ...string) ([]Device
 		}
 		devices = append(devices, obj.Results...)
 		url = obj.Next
+	}
+	for _, dev := range devices {
+		setDeviceCustomFields(&dev)
 	}
 	return devices, nil
 }
@@ -717,4 +724,12 @@ func (c *Client) GetByURL(url string, obj interface{}) (interface{}, error) {
 		return obj, fmt.Errorf("%s: %s", resp.Error(), resp.Body())
 	}
 	return obj, err
+}
+
+func setDeviceCustomFields(dev *DeviceOrVM) {
+	if mon, ok := dev.CustomFieldsMap["monitoring_id"]; ok {
+		if monid, isInt := mon.(int); isInt {
+			dev.CustomFields.MonitoringID = &monid
+		}
+	}
 }
