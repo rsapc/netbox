@@ -3,6 +3,7 @@ package netbox
 import (
 	"errors"
 	"fmt"
+	"net/url"
 )
 
 type ClusterGroupResponse struct {
@@ -92,7 +93,8 @@ type NewVM struct {
 func (c *Client) GetClusterGroup(name string) (ClusterGroup, error) {
 	var group ClusterGroup
 	results := &ClusterGroupResponse{}
-	err := c.Search("cluster-group", results, fmt.Sprintf("name=%s", name))
+
+	err := c.Search("cluster-group", results, fmt.Sprintf("name=%s", url.QueryEscape(name)))
 	if err != nil {
 		c.log.Error("error finding cluster group", "group", name, "error", err)
 		return group, err
@@ -148,7 +150,7 @@ func (c *Client) GetCluster(group string, name string) (Cluster, error) {
 		c.log.Error("Cannot determine cluster group id", "group", group, "error", err)
 		return cluster, err
 	}
-	err = c.Search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, name))
+	err = c.Search("cluster", results, fmt.Sprintf("group_id=%d&name=%s", cGroup.ID, url.QueryEscape(name)))
 	if err != nil {
 		c.log.Error("error finding cluster", "cluster", name, "error", err)
 		return cluster, err

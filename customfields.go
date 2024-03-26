@@ -3,6 +3,7 @@ package netbox
 import (
 	"errors"
 	"fmt"
+	"net/url"
 )
 
 func (c *Client) UpdateCustomFieldOnModel(model string, modelID int64, field string, value any) error {
@@ -20,7 +21,7 @@ func (c *Client) CustomFieldExists(name string) (bool, error) {
 	exists := false
 	field := make(map[string]interface{})
 
-	err := c.Search("customfield", &field, fmt.Sprintf("name=%s", name))
+	err := c.Search("customfield", &field, fmt.Sprintf("name=%s", url.QueryEscape(name)))
 	if err != nil {
 		return exists, err
 	}

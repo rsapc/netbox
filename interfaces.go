@@ -3,11 +3,12 @@ package netbox
 import (
 	"errors"
 	"fmt"
+	"net/url"
 )
 
 // FindInterfaceByName searches Netbox for the given interface name on the requested device
 func (c *Client) FindInterfaceByName(netboxType string, netboxDevice int64, ifName string) (intf Interface, err error) {
-	intfs, err := c.searchInterfaces(netboxType, netboxDevice, fmt.Sprintf("name=%s", ifName))
+	intfs, err := c.searchInterfaces(netboxType, netboxDevice, fmt.Sprintf("name=%s", url.QueryEscape(ifName)))
 	if err != nil {
 		return intf, err
 	}
