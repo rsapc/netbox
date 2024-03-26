@@ -107,6 +107,7 @@ type DeviceOrVM struct {
 	URL       string        `json:"url"`
 	Memory    int           `json:"memory,omitempty"`
 	Diskspace int           `json:"disk,omitempty"`
+	VCPUs     float32       `json:"vcpus,omitempty"`
 }
 type DisplayIDName struct {
 	Display string `json:"display"`

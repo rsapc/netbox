@@ -79,12 +79,13 @@ type ClusterType struct {
 
 // NewVM is used to create a VM
 type NewVM struct {
-	ClusterID   int    `json:"cluster,omitempty"`
-	Name        string `json:"name"`
-	Status      string `json:"status,omitempty"`
-	Memory      int    `json:"memory,omitempty"`
-	Diskspace   int    `json:"disk,omitempty"`
-	Description string `json:"description,omitempty"`
+	ClusterID   int     `json:"cluster,omitempty"`
+	Name        string  `json:"name"`
+	Status      string  `json:"status,omitempty"`
+	Memory      int     `json:"memory,omitempty"`
+	VCPUs       float32 `json:"vcpus,omitempty"`
+	Diskspace   int     `json:"disk,omitempty"`
+	Description string  `json:"description,omitempty"`
 }
 
 // GetClusterGroup looks up the cluster by name
