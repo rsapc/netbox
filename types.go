@@ -40,13 +40,13 @@ func getObjectType(aModel string) string {
 		fallthrough
 	case "device":
 		group = "dcim"
-	case "vminterface":
-		fallthrough
 	case "cluster-group":
 		aModel = "clustergroup"
-		fallthrough
+		group = "virtualization"
 	case "cluster-type":
 		aModel = "clustertype"
+		group = "virtualization"
+	case "vminterface":
 		fallthrough
 	case "cluster":
 		fallthrough
