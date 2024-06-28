@@ -726,6 +726,12 @@ func (c *Client) Search(objectType string, resultObj any, args ...string) error 
 	return nil
 }
 
+func (c *Client) GetByID(objectType string, resultObj interface{}, id int) (interface{}, error) {
+	path := GetPathForModel(objectType)
+	url := fmt.Sprintf("%s/%d", c.buildURL(path), id)
+	return c.GetByURL(url, resultObj)
+}
+
 // GetByURL is useful for iterating through search results using the Next URL value.
 // The response object can be a pointer or object and will be returned.
 func (c *Client) GetByURL(url string, obj interface{}) (interface{}, error) {
