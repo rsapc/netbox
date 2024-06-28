@@ -89,21 +89,45 @@ type NewVM struct {
 	Description string  `json:"description,omitempty"`
 }
 
+// GetClusterGroups returns all clusters that match the filter.  Filter
+// needs to be given as a valid api filter (eg. tag=apc)
+func (c *Client) GetClusterGroups(filter *string) ([]ClusterGroup, error) {
+	var groups []ClusterGroup
+	results := &ClusterGroupResponse{}
+	var args string
+	if filter != nil {
+		args = *filter
+	}
+	err := c.Search("cluster-group", results, args)
+	if err != nil {
+		c.log.Error("error finding cluster groups", "filter", filter, "error", err)
+		return groups, err
+	}
+	groups = append(groups, results.Results...)
+	for results.Next != nil {
+		_, err := c.GetByURL(fmt.Sprint(results.Next), results)
+		if err != nil {
+			c.log.Error("error getting cluster groups", "filter", filter, "error", err)
+			return groups, err
+		}
+		groups = append(groups, results.Results...)
+	}
+	return groups, nil
+}
+
 // GetClusterGroup looks up the cluster by name
 func (c *Client) GetClusterGroup(name string) (ClusterGroup, error) {
 	var group ClusterGroup
-	results := &ClusterGroupResponse{}
-
-	err := c.Search("cluster-group", results, fmt.Sprintf("name=%s", url.QueryEscape(name)))
+	filter := fmt.Sprintf("name=%s", url.QueryEscape(name))
+	results, err := c.GetClusterGroups(&filter)
 	if err != nil {
-		c.log.Error("error finding cluster group", "group", name, "error", err)
 		return group, err
 	}
-	switch results.Count {
+	switch len(results) {
 	case 0:
 		return group, ErrNotFound
 	case 1:
-		return results.Results[0], nil
+		return results[0], nil
 	}
 	return group, errors.New("too many results returned")
 }
@@ -139,6 +163,33 @@ func (c *Client) GetOrAddClusterGroup(name string) (ClusterGroup, error) {
 		return c.AddClusterGroup(name)
 	}
 	return cluster, err
+}
+
+// GetClusters searches for all clusters with the given filter.  The
+// filter needs to be specified as an API filter, eg. tag=apc
+func (c *Client) GetClusters(filter *string) ([]Cluster, error) {
+	var clusters []Cluster
+	var args string
+	results := &ClusterResponse{}
+
+	if filter != nil {
+		args = *filter
+	}
+	err := c.Search("cluster", results, args)
+	if err != nil {
+		c.log.Error("error finding clusters", "filter", filter, "error", err)
+		return clusters, err
+	}
+	clusters = append(clusters, results.Results...)
+	for results.Next != nil {
+		_, err = c.GetByURL(fmt.Sprint(results.Next), results)
+		if err != nil {
+			c.log.Error("error finding next clusters", "filter", filter, "error", err)
+			return clusters, err
+		}
+		clusters = append(clusters, results.Results...)
+	}
+	return clusters, nil
 }
 
 // GetCluster looks up the cluster with the given name in the given group
