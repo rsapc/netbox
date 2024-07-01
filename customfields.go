@@ -58,6 +58,7 @@ func (c *Client) AddCustomField(name string, label string, readonly bool, object
 		objs = append(objs, getObjectType(obj))
 	}
 	data["content_types"] = objs
+	data["object_types"] = objs
 	if readonly {
 		data["ui_editable"] = "no"
 	}
