@@ -121,11 +121,11 @@ type LabelValue struct {
 	Value string `json:"value"`
 }
 type PrimaryI struct {
-	Address string `json:"address"`
-	Display string `json:"display"`
-	Family  int    `json:"family"`
-	ID      int    `json:"id"`
-	URL     string `json:"url"`
+	Address string      `json:"address"`
+	Display string      `json:"display"`
+	Family  interface{} `json:"family"`
+	ID      int         `json:"id"`
+	URL     string      `json:"url"`
 }
 
 // DeviceVMSearchResults are returned for searches of
