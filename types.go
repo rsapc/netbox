@@ -54,6 +54,12 @@ func getObjectType(aModel string) string {
 		group = "virtualization"
 	case "ipaddress":
 		group = "ipam"
+	case "aggregate":
+		group = "ipam"
+	case "prefix":
+		group = "ipam"
+	case "ip-range":
+		group = "ipam"
 	default:
 		return "Invalid"
 	}

@@ -34,6 +34,12 @@ func GetPathForModel(model string) string {
 		fallthrough
 	case "custom-field":
 		path = "/extras/custom-fields"
+	case "aggregate":
+		path = "/ipam/aggregates"
+	case "prefix":
+		path = "/ipam/prefixes"
+	case "ip-range":
+		path = "/ipam/ip-ranges"
 	}
 	return path
 }
