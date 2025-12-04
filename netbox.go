@@ -1,6 +1,7 @@
 package netbox
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log"
@@ -213,6 +214,7 @@ type Client struct {
 func NewClient(baseURL string, token string, logger models.Logger) *Client {
 	c := &Client{}
 	c.client = resty.New()
+	c.client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	c.client.SetRedirectPolicy(resty.FlexibleRedirectPolicy(5))
 	c.baseURL = baseURL
 	c.token = token
