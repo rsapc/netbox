@@ -416,6 +416,33 @@ func (c *Client) UpdateObjectByURL(url string, payload any) error {
 	return nil
 }
 
+// UpdateObjectWithMap takes an object and updates it
+func (c *Client) AddObject(model string, modelID int64, payload any) (map[string]interface{}, error) {
+	path := GetPathForModel(model)
+	if path == "" {
+		c.log.Error("could not determine the path for model %s", model)
+		return nil, fmt.Errorf("could not determine the path for model %s", model)
+	}
+	path = fmt.Sprintf("%s/%d/", path, modelID)
+	return c.AddObjectByURL(c.buildURL(path), payload)
+}
+func (c *Client) AddObjectByURL(url string, payload any) (map[string]interface{}, error) {
+	c.log.Debug(fmt.Sprintf("Adding %s", url))
+	obj := make(map[string]interface{})
+	r := c.buildRequest().SetResult(&obj)
+	r.SetBody(payload)
+	resp, err := r.Patch(url)
+	if err != nil {
+		c.log.Warn(err.Error())
+		return obj, err
+	}
+	if resp.IsError() {
+		c.log.Error(fmt.Sprintf("invalid response from server: %d: %v", resp.StatusCode(), resp.Error()), "url", r.URL, "body", resp.Body())
+		return obj, fmt.Errorf("netbox returned %d: %s", resp.StatusCode(), resp.Body())
+	}
+	return obj, nil
+}
+
 // DeleteObjectByURL will send a DELETE command to the provided URL
 func (c *Client) DeleteObjectByURL(url string) error {
 	c.log.Debug(fmt.Sprintf("Deleting %s", url))
