@@ -43,7 +43,7 @@ func GetPathForModel(model string) string {
 	case "mac":
 		fallthrough
 	case "mac-address":
-		path = "/dcim/mac-addresses"
+		path = "/dcim/mac-addresses/"
 	}
 	return path
 }
