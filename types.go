@@ -255,7 +255,7 @@ type InterfaceEdit struct {
 	Duplex      *string     `json:"duplex,omitempty"`
 	Label       *string     `json:"label,omitempty"`
 	Lag         interface{} `json:"lag,omitempty"`
-	PrimaryMAC  *MAC        `json:"primary_mac_address,omitempty"`
+	PrimaryMAC  float64     `json:"primary_mac_address,omitempty"`
 	Name        *string     `json:"name,omitempty"`
 	Speed       *int        `json:"speed,omitempty"`
 	Type        *string     `json:"type,omitempty"`
@@ -292,9 +292,8 @@ func (i *InterfaceEdit) SetDuplex(duplex *string) bool {
 	return true
 }
 
-func (i *InterfaceEdit) SetMac(mac string) bool {
-	macaddr := &MAC{MacAddress: &mac}
-	i.PrimaryMAC = macaddr
+func (i *InterfaceEdit) SetMac(macid float64) bool {
+	i.PrimaryMAC = macid
 	return true
 }
 
