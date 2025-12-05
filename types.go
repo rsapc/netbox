@@ -249,11 +249,13 @@ type InterfaceEdit struct {
 	Duplex      *string     `json:"duplex,omitempty"`
 	Label       *string     `json:"label,omitempty"`
 	Lag         interface{} `json:"lag,omitempty"`
-	MacAddress  *string     `json:"mac_address,omitempty"`
-	Name        *string     `json:"name,omitempty"`
-	Speed       *int        `json:"speed,omitempty"`
-	Type        *string     `json:"type,omitempty"`
-	Parent      *int        `json:"parent,omitempty"`
+	PrimaryMAC  struct {
+		MacAddress *string `json:"mac_address,omitempty"`
+	} `json:"primary_mac_address,omitempty"`
+	Name   *string `json:"name,omitempty"`
+	Speed  *int    `json:"speed,omitempty"`
+	Type   *string `json:"type,omitempty"`
+	Parent *int    `json:"parent,omitempty"`
 }
 
 // SetSpeed sets the speed to update.  Returns true
@@ -287,7 +289,7 @@ func (i *InterfaceEdit) SetDuplex(duplex *string) bool {
 }
 
 func (i *InterfaceEdit) SetMac(mac string) bool {
-	i.MacAddress = &mac
+	i.PrimaryMAC.MacAddress = &mac
 	return true
 }
 
