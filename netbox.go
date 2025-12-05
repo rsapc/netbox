@@ -430,7 +430,7 @@ func (c *Client) AddObjectByURL(url string, payload any) (map[string]interface{}
 	obj := make(map[string]interface{})
 	r := c.buildRequest().SetResult(&obj)
 	r.SetBody(payload)
-	resp, err := r.Patch(url)
+	resp, err := r.Post(url)
 	if err != nil {
 		c.log.Warn(err.Error())
 		return obj, err
