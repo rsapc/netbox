@@ -143,6 +143,12 @@ type DeviceVMSearchResults struct {
 	Results  []DeviceOrVM `json:"results"`
 }
 
+type MAC struct {
+	MacAddress *string `json:"mac_address,omitempty"`
+	ID         int     `json:"id,omitempty"`
+	URL        string  `json:"url,omitempty"`
+}
+
 type Interface struct {
 	Bridge interface{} `json:"bridge"`
 	Cable  *struct {
@@ -179,7 +185,7 @@ type Interface struct {
 		URL      string        `json:"url"`
 	} `json:"link_peers"`
 	LinkPeersType      *string       `json:"link_peers_type"`
-	MacAddress         *string       `json:"mac_address"`
+	PrimaryMAC         *MAC          `json:"primary_mac_address,omitempty"`
 	MarkConnected      bool          `json:"mark_connected"`
 	MgmtOnly           bool          `json:"mgmt_only"`
 	Mode               interface{}   `json:"mode"`
@@ -227,8 +233,8 @@ func (i *Interface) GetDuplex() string {
 
 func (i *Interface) GetMacAddress() string {
 	var mac string
-	if i.MacAddress != nil {
-		mac = *i.MacAddress
+	if i.PrimaryMAC != nil && i.PrimaryMAC.MacAddress != nil {
+		mac = *i.PrimaryMAC.MacAddress
 	}
 	return mac
 }
@@ -249,13 +255,11 @@ type InterfaceEdit struct {
 	Duplex      *string     `json:"duplex,omitempty"`
 	Label       *string     `json:"label,omitempty"`
 	Lag         interface{} `json:"lag,omitempty"`
-	PrimaryMAC  struct {
-		MacAddress *string `json:"mac_address,omitempty"`
-	} `json:"primary_mac_address,omitempty"`
-	Name   *string `json:"name,omitempty"`
-	Speed  *int    `json:"speed,omitempty"`
-	Type   *string `json:"type,omitempty"`
-	Parent *int    `json:"parent,omitempty"`
+	PrimaryMAC  *MAC        `json:"primary_mac_address,omitempty"`
+	Name        *string     `json:"name,omitempty"`
+	Speed       *int        `json:"speed,omitempty"`
+	Type        *string     `json:"type,omitempty"`
+	Parent      *int        `json:"parent,omitempty"`
 }
 
 // SetSpeed sets the speed to update.  Returns true
@@ -289,7 +293,8 @@ func (i *InterfaceEdit) SetDuplex(duplex *string) bool {
 }
 
 func (i *InterfaceEdit) SetMac(mac string) bool {
-	i.PrimaryMAC.MacAddress = &mac
+	macaddr := &MAC{MacAddress: &mac}
+	i.PrimaryMAC = macaddr
 	return true
 }
 
