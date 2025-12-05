@@ -40,6 +40,10 @@ func GetPathForModel(model string) string {
 		path = "/ipam/prefixes"
 	case "ip-range":
 		path = "/ipam/ip-ranges"
+	case "mac":
+		fallthrough
+	case "mac-address":
+		path = "/dcim/mac-addresses"
 	}
 	return path
 }
