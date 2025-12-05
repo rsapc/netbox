@@ -417,13 +417,12 @@ func (c *Client) UpdateObjectByURL(url string, payload any) error {
 }
 
 // UpdateObjectWithMap takes an object and updates it
-func (c *Client) AddObject(model string, modelID int64, payload any) (map[string]interface{}, error) {
+func (c *Client) AddObject(model string, payload any) (map[string]interface{}, error) {
 	path := GetPathForModel(model)
 	if path == "" {
 		c.log.Error("could not determine the path for model %s", model)
 		return nil, fmt.Errorf("could not determine the path for model %s", model)
 	}
-	path = fmt.Sprintf("%s/%d/", path, modelID)
 	return c.AddObjectByURL(c.buildURL(path), payload)
 }
 func (c *Client) AddObjectByURL(url string, payload any) (map[string]interface{}, error) {
